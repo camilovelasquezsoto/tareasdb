@@ -1,0 +1,391 @@
+ACTIVIDAD: NORMALIZACIÓN CON VIOLACIONES DE FORMAS NORMALES
+
+Este documento detalla el proceso de normalización paso a paso para los 8 ejercicios propuestos, analizando las violaciones de la 1FN, 2FN y 3FN, y presentando las tablas resultantes.
+
+=====================================================================
+📌 1. RELACIÓN DE ESTUDIANTES Y CURSOS
+=====================================================================
+Tabla original:
+| ID Estudiante | Nombre   | Cursos Inscritos             | Fecha Inscripción    |
+|---------------|----------|--------------------------    |----------------------|
+| 1             | Luis     | Matemáticas, Física          | 2025-03-01           |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: El atributo 'Cursos Inscritos' no es atómico (contiene múltiples cursos separados por comas).
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Descomponemos los valores multivaluados en filas individuales.
+     Tabla resultante (Estudiantes_Cursos_1FN):
+     - ID Estudiante (PK)
+     - Nombre
+     - Curso (PK)
+     - Fecha Inscripción
+     (La clave primaria compuesta es: ID Estudiante, Curso)
+
+  2. Segunda Forma Normal (2FN):
+     Identificamos dependencias parciales:
+     - El 'Nombre' depende únicamente de 'ID Estudiante' (dependencia parcial de la clave primaria).
+     - La 'Fecha Inscripción' depende de la combinación de 'ID Estudiante' y 'Curso' (cuándo se inscribió ese alumno a ese curso).
+     Separamos en dos tablas para cumplir 2FN:
+     
+     TABLA: Estudiante
+     - ID Estudiante (PK)
+     - Nombre
+
+     TABLA: Inscripcion
+     - ID Estudiante (PK, FK -> Estudiante)
+     - Curso (PK)
+     - Fecha Inscripción
+
+  3. Tercera Forma Normal (3FN):
+     No existen dependencias transitivas entre los atributos no clave. Las tablas ya están en 3FN.
+
+* TABLAS FINALES (3FN):
+  - Estudiante(ID Estudiante [PK], Nombre)
+  - Inscripcion(ID Estudiante [PK, FK], Curso [PK], Fecha Inscripción)
+
+
+=====================================================================
+📌 2. RELACIÓN DE PEDIDOS
+=====================================================================
+Tabla original:
+| ID Pedido | Cliente | Productos                        | Precio Total | Fecha Pedido |
+|-----------|---------|----------------------------------|--------------|--------------|
+| 1         | Juan    | Camisa, Pantalón                 | 40           | 2025-04-01   |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: El atributo 'Productos' contiene múltiples valores no atómicos por fila.
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Dividimos los productos en filas individuales.
+     Tabla resultante (Pedidos_1FN):
+     - ID Pedido (PK)
+     - Cliente
+     - Producto (PK)
+     - Precio Total
+     - Fecha Pedido
+     (La clave primaria compuesta es: ID Pedido, Producto)
+
+  2. Segunda Forma Normal (2FN):
+     Identificamos dependencias parciales:
+     - 'Cliente', 'Precio Total' y 'Fecha Pedido' dependen únicamente del 'ID Pedido', no del 'Producto'.
+     Separamos las tablas:
+
+     TABLA: Pedido
+     - ID Pedido (PK)
+     - Cliente
+     - Precio Total
+     - Fecha Pedido
+
+     TABLA: DetallePedido
+     - ID Pedido (PK, FK -> Pedido)
+     - Producto (PK)
+
+  3. Tercera Forma Normal (3FN):
+     No hay dependencias transitivas (el cliente es solo texto y el precio total pertenece al pedido). Las tablas ya están en 3FN.
+
+* TABLAS FINALES (3FN):
+  - Pedido(ID Pedido [PK], Cliente, Precio Total, Fecha Pedido)
+  - DetallePedido(ID Pedido [PK, FK], Producto [PK])
+
+
+=====================================================================
+📌 3. RELACIÓN DE EMPLEADOS Y PROYECTOS
+=====================================================================
+Tabla original:
+| ID Empleado | Nombre   | Proyecto     | Horas Trabajadas | Supervisor   | Fecha Asignación |
+|-------------|----------|--------------|------------------|--------------|------------------|
+| 1           | Pedro    | Proyecto A   | 40               | Carlos       | 2025-03-01       |
+
+* VIOLACIONES DETECTADAS:
+  - La clave primaria para identificar la fila de forma única debe ser compuesta: (ID Empleado, Proyecto).
+  - 1FN: Todos los valores son atómicos. Se cumple 1FN.
+  - 2FN: Existen dependencias parciales respecto a la clave compuesta (ID Empleado, Proyecto):
+    * 'Nombre' depende solo de 'ID Empleado'.
+    * 'Supervisor' depende solo de 'Proyecto' (cada proyecto tiene un supervisor fijo).
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Segunda Forma Normal (2FN):
+     Separamos las dependencias parciales en sus propias tablas:
+
+     TABLA: Empleado
+     - ID Empleado (PK)
+     - Nombre
+
+     TABLA: Proyecto
+     - Proyecto (PK)
+     - Supervisor
+
+     TABLA: AsignacionProyecto
+     - ID Empleado (PK, FK -> Empleado)
+     - Proyecto (PK, FK -> Proyecto)
+     - Horas Trabajadas
+     - Fecha Asignación
+
+  2. Tercera Forma Normal (3FN):
+     No hay dependencias transitivas en las nuevas tablas.
+
+* TABLAS FINALES (3FN):
+  - Empleado(ID Empleado [PK], Nombre)
+  - Proyecto(Proyecto [PK], Supervisor)
+  - AsignacionProyecto(ID Empleado [PK, FK], Proyecto [PK, FK], Horas Trabajadas, Fecha Asignación)
+
+
+=====================================================================
+📌 4. RELACIÓN DE FACTURAS DE COMPRAS
+=====================================================================
+Tabla original:
+| ID Factura | Cliente | Producto Comprado   | Cantidad | Precio Unitario | Descuento | Total Factura |
+|------------|---------|---------------------|----------|-----------------|-----------|---------------|
+| 1          | Juan    | Camisa, Pantalón    | 2, 1     | 20, 30          | 5, 0      | 70            |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: Los atributos 'Producto Comprado', 'Cantidad', 'Precio Unitario' y 'Descuento' son listas multivaluadas no atómicas.
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Descomponemos los datos en filas atómicas.
+     Tabla resultante (Factura_1FN):
+     - ID Factura (PK)
+     - Cliente
+     - Producto Comprado (PK)
+     - Cantidad
+     - Precio Unitario
+     - Descuento
+     - Total Factura
+     (La clave compuesta es: ID Factura, Producto Comprado)
+
+  2. Segunda Forma Normal (2FN):
+     Identificamos dependencias parciales:
+     - 'Cliente' y 'Total Factura' dependen solo de 'ID Factura'.
+     - 'Precio Unitario' depende solo de 'Producto Comprado'.
+     - 'Cantidad' y 'Descuento' dependen de la clave completa (ID Factura, Producto Comprado).
+     Separamos para cumplir 2FN:
+
+     TABLA: Factura
+     - ID Factura (PK)
+     - Cliente
+     - Total Factura
+
+     TABLA: Producto
+     - Producto (PK)
+     - Precio Unitario
+
+     TABLA: DetalleFactura
+     - ID Factura (PK, FK -> Factura)
+     - Producto (PK, FK -> Producto)
+     - Cantidad
+     - Descuento
+
+  3. Tercera Forma Normal (3FN):
+     No hay dependencias transitivas en las tablas resultantes.
+
+* TABLAS FINALES (3FN):
+  - Factura(ID Factura [PK], Cliente, Total Factura)
+  - Producto(Producto [PK], Precio Unitario)
+  - DetalleFactura(ID Factura [PK, FK], Producto [PK, FK], Cantidad, Descuento)
+
+
+=====================================================================
+📌 5. RELACIÓN DE CURSOS Y ESTUDIANTES
+=====================================================================
+Tabla original:
+| ID Estudiante | Nombre   | Cursos Inscritos               | Profesor         | Calificación |
+|---------------|----------|--------------------------------|------------------|--------------|
+| 1             | Luis     | Matemáticas, Historia          | Prof. A, Prof. B | 8, 9         |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: Los atributos 'Cursos Inscritos', 'Profesor' y 'Calificación' tienen listas multivaluadas.
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Separamos las listas en filas independientes.
+     Tabla resultante:
+     - ID Estudiante (PK)
+     - Nombre
+     - Curso (PK)
+     - Profesor
+     - Calificacion
+     (Clave primaria compuesta: ID Estudiante, Curso)
+
+  2. Segunda Forma Normal (2FN):
+     Identificamos dependencias parciales:
+     - 'Nombre' depende solo de 'ID Estudiante'.
+     - 'Profesor' depende solo del 'Curso' (asumiendo que cada curso es dictado por un profesor fijo).
+     - 'Calificacion' depende de la combinación completa (ID Estudiante, Curso).
+     Separamos para cumplir 2FN:
+
+     TABLA: Estudiante
+     - ID Estudiante (PK)
+     - Nombre
+
+     TABLA: Curso
+     - Curso (PK)
+     - Profesor
+
+     TABLA: CalificacionCurso
+     - ID Estudiante (PK, FK -> Estudiante)
+     - Curso (PK, FK -> Curso)
+     - Calificacion
+
+  3. Tercera Forma Normal (3FN):
+     Las tablas ya no presentan dependencias transitivas.
+
+* TABLAS FINALES (3FN):
+  - Estudiante(ID Estudiante [PK], Nombre)
+  - Curso(Curso [PK], Profesor)
+  - CalificacionCurso(ID Estudiante [PK, FK], Curso [PK, FK], Calificacion)
+
+
+=====================================================================
+📌 6. RELACIÓN DE COMPRAS Y PROVEEDORES
+=====================================================================
+Tabla original:
+| ID Compra | Proveedor  | Productos                 | Fecha Compra | Total Compra |
+|-----------|-----------|---------------------------|--------------|--------------|
+| 1         | Proveedor A | Producto X, Producto Y    | 2025-04-01   | 100          |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: El atributo 'Productos' contiene múltiples valores no atómicos.
+  - 2FN: La información de la compra ('Proveedor', 'Fecha Compra', 'Total Compra') depende parcialmente del ID Compra una vez abierta la clave compuesta con 'Productos'.
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Separamos los productos por fila.
+     Tabla resultante:
+     - ID Compra (PK)
+     - Proveedor
+     - Producto (PK)
+     - Fecha Compra
+     - Total Compra
+     (Clave compuesta: ID Compra, Producto)
+
+  2. Segunda Forma Normal (2FN):
+     Separamos los datos que solo dependen de la compra:
+
+     TABLA: Compra
+     - ID Compra (PK)
+     - Proveedor
+     - Fecha Compra
+     - Total Compra
+
+     TABLA: DetalleCompra
+     - ID Compra (PK, FK -> Compra)
+     - Producto (PK)
+
+  3. Tercera Forma Normal (3FN):
+     No hay dependencias transitivas. Las tablas están en 3FN.
+
+* TABLAS FINALES (3FN):
+  - Compra(ID Compra [PK], Proveedor, Fecha Compra, Total Compra)
+  - DetalleCompra(ID Compra [PK, FK], Producto [PK])
+
+
+=====================================================================
+📌 7. RELACIÓN DE CLIENTES Y SERVICIOS
+=====================================================================
+Tabla original:
+| ID Cliente | Nombre   | Servicios Contratados      | Monto   | Fecha Contratación | Tipo Servicio   |
+|------------|----------|----------------------------|---------|--------------------|-----------------|
+| 1          | Luis     | Servicio A, Servicio B     | 200     | 2025-03-01         | Premium         |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: El atributo 'Servicios Contratados' contiene valores multivaluados.
+  - 2FN: Si la clave compuesta es (ID Cliente, Servicio), entonces 'Nombre', 'Monto' y 'Tipo Servicio' dependen parcialmente del 'ID Cliente'.
+  - 3FN: Hay una dependencia transitiva en los datos del cliente:
+    `ID Cliente` -> `Tipo Servicio` (Premium) -> `Monto` (los Premium pagan una tarifa total agrupada).
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Expandimos a valores atómicos por fila.
+     Tabla resultante:
+     - ID Cliente (PK)
+     - Nombre
+     - Servicio (PK)
+     - Monto
+     - Fecha Contratación
+     - Tipo Servicio
+     (Clave compuesta: ID Cliente, Servicio)
+
+  2. Segunda Forma Normal (2FN):
+     Separamos las dependencias parciales:
+
+     TABLA: Cliente_Pre
+     - ID Cliente (PK)
+     - Nombre
+     - Tipo Servicio
+     - Monto (Monto total pagado por el cliente por su suscripción)
+
+     TABLA: Contratacion
+     - ID Cliente (PK, FK -> Cliente)
+     - Servicio (PK)
+     - Fecha Contratación
+
+  3. Tercera Forma Normal (3FN):
+     En la tabla `Cliente_Pre`, el `Monto` depende de `Tipo Servicio` y este de `ID Cliente` (Dependencia transitiva). Separamos los tipos de servicio a su propia tabla:
+
+     TABLA: Cliente
+     - ID Cliente (PK)
+     - Nombre
+     - Tipo Servicio (FK -> PlanServicio)
+
+     TABLA: PlanServicio
+     - Tipo Servicio (PK)
+     - Monto
+
+* TABLAS FINALES (3FN):
+  - Cliente(ID Cliente [PK], Nombre, Tipo Servicio [FK])
+  - PlanServicio(Tipo Servicio [PK], Monto)
+  - Contratacion(ID Cliente [PK, FK], Servicio [PK], Fecha Contratación)
+
+
+=====================================================================
+📌 8. RELACIÓN DE ALUMNOS Y ACTIVIDADES
+=====================================================================
+Tabla original:
+| ID Alumno | Nombre   | Actividades Participadas     | Fecha Participación |
+|-----------|----------|------------------------------|---------------------|
+| 1         | Luis     | Fútbol, Baloncesto           | 2025-03-01          |
+
+* VIOLACIONES DETECTADAS:
+  - 1FN: El atributo 'Actividades Participadas' es multivaluado.
+  - 2FN: Si la clave es (ID Alumno, Actividad), 'Nombre' depende solo de 'ID Alumno' (dependencia parcial).
+
+* PROCESO DE NORMALIZACIÓN:
+
+  1. Primera Forma Normal (1FN):
+     Separamos las actividades por fila.
+     Tabla resultante:
+     - ID Alumno (PK)
+     - Nombre
+     - Actividad (PK)
+     - Fecha Participación
+     (Clave compuesta: ID Alumno, Actividad)
+
+  2. Segunda Forma Normal (2FN):
+     Separamos las dependencias parciales:
+
+     TABLA: Alumno
+     - ID Alumno (PK)
+     - Nombre
+
+     TABLA: ParticipacionActividad
+     - ID Alumno (PK, FK -> Alumno)
+     - Actividad (PK)
+     - Fecha Participación
+
+  3. Tercera Forma Normal (3FN):
+     No existen dependencias transitivas. Las tablas están en 3FN.
+
+* TABLAS FINALES (3FN):
+  - Alumno(ID Alumno [PK], Nombre)
+  - ParticipacionActividad(ID Alumno [PK, FK], Actividad [PK], Fecha Participación)

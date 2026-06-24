@@ -1,0 +1,1 @@
+ALTER TABLE pedido ADD COLUMN total_productos INTEGER DEFAULT 0;

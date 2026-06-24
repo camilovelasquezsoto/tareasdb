@@ -1,0 +1,1 @@
+ALTER TABLE producto ALTER COLUMN precio_unidad TYPE DECIMAL(10,2);

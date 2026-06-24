@@ -1,0 +1,1 @@
+DROP INDEX idx_producto_nombre_precio;

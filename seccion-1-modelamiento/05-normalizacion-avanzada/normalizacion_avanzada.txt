@@ -1,0 +1,176 @@
+APUNTES DE NORMALIZACIÓN AVANZADA (3FN)
+
+Este documento contiene la normalización a la Tercera Forma Normal (3FN) para los 6 escenarios complejos propuestos, incluyendo la identificación de sus claves primarias originales, el desglose de las violaciones de formas normales (1FN, 2FN, 3FN) y el esquema relacional final resultante.
+
+=====================================================================
+📌 1. CITAS EN UNA CLÍNICA DENTAL
+=====================================================================
+- PK Original Compuesta: {No_Dentista, Fecha_Cita, Hora_Cita}
+- Violaciones detectadas: 
+  * 2FN: No_Dentista determina Nombre_Dentista (Parcial). No_Paciente determina Nombre_Paciente (Transitiva indirecta). {No_Dentista, Fecha_Cita} determina No_Consultorio (Parcial).
+
+Esquema Final en 3FN:
+
+TABLA: Dentistas
+- No_Dentista (PK)
+- Nombre_Dentista
+
+TABLA: Pacientes
+- No_Paciente (PK)
+- Nombre_Paciente
+
+TABLA: Consultorios_Asignados
+- No_Dentista (PK, FK -> Dentistas)
+- Fecha_Cita (PK)
+- No_Consultorio
+
+TABLA: Citas
+- No_Dentista (PK, FK -> Dentistas)
+- Fecha_Cita (PK)
+- Hora_Cita (PK)
+- No_Paciente (FK -> Pacientes)
+
+=====================================================================
+📌 2. AGENCIA DE PERSONAL HOTELERO
+=====================================================================
+- PK Original Compuesta: {NIF, No_Contrato}
+- Violaciones detectadas:
+  * 2FN: NIF determina Nombre_Empleado. No_Contrato determina No_Hotel, Ciudad_Hotel, Categoria_Hotel.
+  * 3FN: No_Hotel determina Ciudad_Hotel y Categoria_Hotel (Transitiva dentro de Contrato).
+
+Esquema Final en 3FN:
+
+TABLA: Empleados
+- NIF (PK)
+- Nombre_Empleado
+
+TABLA: Hoteles
+- No_Hotel (PK)
+- Ciudad_Hotel
+- Categoria_Hotel
+
+TABLA: Contratos
+- No_Contrato (PK)
+- No_Hotel (FK -> Hoteles)
+
+TABLA: Asignaciones
+- NIF (PK, FK -> Empleados)
+- No_Contrato (PK, FK -> Contratos)
+- Horas_Semana
+
+=====================================================================
+📌 3. CATÁLOGO DE PELÍCULAS
+=====================================================================
+- PK Original Compuesta: {Titulo, Ano, Actor}
+- Violaciones detectadas:
+  * 2FN: {Titulo, Ano} determina Duracion, Tipo y Estudio (Parcial).
+  * 3FN: Estudio determina Direccion_Estudio (Transitiva).
+
+Esquema Final en 3FN:
+
+TABLA: Estudios
+- Estudio (PK)
+- Direccion_Estudio
+
+TABLA: Peliculas
+- Titulo (PK)
+- Ano (PK)
+- Duracion
+- Tipo
+- Estudio (FK -> Estudios)
+
+TABLA: Reparto
+- Titulo (PK, FK -> Peliculas)
+- Ano (PK, FK -> Peliculas)
+- Actor (PK)
+- Rol
+
+=====================================================================
+📌 4. TIENDA DE ABARROTES — INVENTARIO Y PROVEEDORES
+=====================================================================
+- PK Original Simple: {Codigo_Producto}
+- Violaciones detectadas:
+  * 2FN: Ya cumple (PK no es compuesta).
+  * 3FN: Codigo_Producto -> Departamento -> Pasillo (Dependencia transitiva de Pasillo con Departamento).
+
+Esquema Final en 3FN:
+
+TABLA: Departamentos
+- Departamento (PK)
+- Pasillo
+
+TABLA: Productos
+- Codigo_Producto (PK)
+- Producto
+- Departamento (FK -> Departamentos)
+- Proveedor
+- Costo
+- Margen
+- Precio
+- Unidad
+
+=====================================================================
+📌 5. REGISTRO ESCOLAR — ALUMNOS, MATERIAS Y CASAS
+=====================================================================
+- PK Original Compuesta: {Matricula, Materia}
+- Violaciones detectadas:
+  * 2FN: Matricula determina Nombre_Alumno, Direccion, Casa. Materia determina Costo_Materia, Profesor.
+  * 3FN: Casa determina Color_Casa. Profesor determina Depto_Profesor.
+
+Esquema Final en 3FN:
+
+TABLA: Casas
+- Casa (PK)
+- Color_Casa
+
+TABLA: Alumnos
+- Matricula (PK)
+- Nombre_Alumno
+- Direccion
+- Casa (FK -> Casas)
+
+TABLA: Profesores
+- Profesor (PK)
+- Depto_Profesor
+
+TABLA: Materias
+- Materia (PK)
+- Costo_Materia
+- Profesor (FK -> Profesores)
+
+TABLA: Inscripciones
+- Matricula (PK, FK -> Alumnos)
+- Materia (PK, FK -> Materias)
+- Calificacion
+
+=====================================================================
+📌 6. GALERÍA DE ARTE — VENTAS Y REVENTAS
+=====================================================================
+- PK Original Compuesta: {No_Cliente, No_Artista, Título_Obra, Fecha_Venta}
+- Violaciones detectadas:
+  * 2FN: No_Cliente determina sus datos personales. No_Artista determina Nombre_Artista. {No_Artista, Título_Obra} determina Tecnica.
+
+Esquema Final en 3FN:
+
+TABLA: Clientes
+- No_Cliente (PK)
+- Nombre_Cliente
+- Telefono
+- Direccion_Cliente
+- Ciudad
+
+TABLA: Artistas
+- No_Artista (PK)
+- Nombre_Artista
+
+TABLA: Obras
+- No_Artista (PK, FK -> Artistas)
+- Titulo_Obra (PK)
+- Tecnica
+
+TABLA: Ventas
+- No_Cliente (PK, FK -> Clientes)
+- No_Artista (PK, FK -> Obras)
+- Titulo_Obra (PK, FK -> Obras)
+- Fecha_Venta (PK)
+- Precio_Venta
